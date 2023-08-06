@@ -1,0 +1,25 @@
+{
+  "name": "angelin_employeetracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angelinrajan/Angelin_EmployeeTracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/angelinrajan/Angelin_EmployeeTracker/issues"
+  },
+  "homepage": "https://github.com/angelinrajan/Angelin_EmployeeTracker#readme",
+  "dependencies": {
+    "inquirer": "^8.2.4",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.6.0"
+  }
+}
