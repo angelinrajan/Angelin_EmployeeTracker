@@ -49,11 +49,11 @@ function start() {
                 case "Add a role":
                     addRole()
                     break;
-                case "Add a employee":
-
+                case "Add an employee":
+                    addEmployee()
                     break;
                 case 'Update an employee role':
-
+                    updateEmployee()
                     break;
                 default:
                     process.exit();
@@ -82,6 +82,7 @@ function allRoles() {
             console.log(err);
         }
         console.table(results);
+        start()
     });
 }
 
@@ -91,6 +92,7 @@ function allEmployees() {
             console.log(err);
         }
         console.table(results);
+        start()
     });
 }
 
@@ -140,20 +142,109 @@ connection.query('select * from department', (err, result)=> {
             message: 'what is the salary of the role you are creating?'
         }
     ]).then((answers)=> {
-        console.log(answers);
-    })
-})
+        const { title, department_id, salary } = answers;
+
+        // Insert the new role into the database
+        const sql = 'INSERT INTO role (title, department_id, salary) VALUES (?, ?, ?)';
+        connection.query(sql, [title, department_id, salary], (err, results) => {
+            if (err) throw err;
+
+            console.log('Role added successfully!');
+        start();
+    });
+});
+});
 }
 
-  // Query database
-// connection.query('SELECT * FROM favorite_books', function (err, results) {
-//     if (err) {
-//         console.log(err);
-//       }
-//     console.log(results);
-//   });
-//   .then((res) => fetch(`https://api.github.com/users/${res.username}`))
-//   .then((res) => res.json())
-//   .then((user) => console.log(user))
-//   // Promises execution will rout to the '.catch()' callback when an error occurs in any of the promises from before.
-//   .catch((err) => console.log(err));
+function addEmployee() {
+    // create a list of available departments
+    connection.query('select id, title from role', (err, result)=> {
+        const roleList = result.map((role)=>({
+            name: role.title,
+            value: role.id
+        }));
+        connection.query('select * from employee', (err, result)=> {
+            const mgrlist = result.map((mgr)=>({
+                name:`${mgr.first_name} ${mgr.last_name}`,
+                value: mgr.id
+            }));
+    inquirer
+    .prompt([
+        {
+            type: 'input',
+            name: 'firstName',
+            message: 'What is the Employee first name?',
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message: 'What is the Employee Last name?',
+        },
+        {
+            type: 'list',
+            name: 'role',
+            choices: roleList,
+            message: 'What is the Employee role?',
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            choices: mgrlist,
+            message: 'Who is the employee manager?',
+        },
+    ])
+    .then(res => {
+        const { firstName, lastName, role, manager } = res;
+                    const sql = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
+                    connection.query(sql, [firstName, lastName, role, manager], (err, results) => {
+                        if (err) throw err;
+
+                        console.log('Employee added successfully!');
+                        start();  // Assuming 'start' is defined and has the appropriate functionality
+                    });
+                });
+        });
+    });
+}
+
+
+function updateEmployee() {
+
+    connection.query('select first_name, last_name, id from employee', (err, result)=> {
+        const empList = result.map((employee)=>({
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id
+        }));
+        connection.query('select title, id from role', (err, result)=> {
+            const rolelist = result.map((role)=>({
+                name: role.title,
+                value: role.id
+            }));
+    inquirer
+    .prompt([
+        {
+            type: 'list',
+            name: 'empId',
+            choices: empList,
+            message: 'Which employee do you want to update?',
+        },
+        {
+            type: 'list',
+            name: 'roleId',
+            choices: rolelist,
+            message: 'Which role do you want to assign the selected employee?',
+        }
+    ])
+    .then(res => {
+        const { empId, roleId } = res;
+                    const sql = 'UPDATE employee SET role_id=? WHERE id =?';
+                    connection.query(sql, [roleId, empId], (err, results) => {
+                        if (err) throw err;
+
+                        console.log('Updated Employee role');
+                        start();  // Assuming 'start' is defined and has the appropriate functionality
+                    });
+                });
+        });
+    });
+}
